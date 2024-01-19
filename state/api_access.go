@@ -89,14 +89,7 @@ func (ls *luaState) ToNumber(idx int) float64 {
 
 func (ls *luaState) ToNumberX(idx int) (float64, bool) {
 	val := ls.stack.get(idx)
-	switch x := val.(type) {
-	case float64:
-		return x, true
-	case int64:
-		return float64(x), true
-	default:
-		return 0, false
-	}
+	return convertToFloat(val)
 }
 
 func (ls *luaState) ToInteger(idx int) int64 {
@@ -106,8 +99,7 @@ func (ls *luaState) ToInteger(idx int) int64 {
 
 func (ls *luaState) ToIntegerX(idx int) (int64, bool) {
 	val := ls.stack.get(idx)
-	i, ok := val.(int64)
-	return i, ok
+	return convertToInteger(val)
 }
 
 func (ls *luaState) ToString(idx int) string {
