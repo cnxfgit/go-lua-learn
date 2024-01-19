@@ -1,5 +1,7 @@
 package vm
 
+import "luago/api"
+
 // 定长4字节的指令共4种 47条指令
 //		  |31		24|23		16|15		8|7		 0|
 // iABC	  |	B: 9	  | C: 9      | A: 8     |opcode:6| 39种
@@ -72,61 +74,62 @@ const (
 )
 
 type opcode struct {
-	testFlag byte   // operator is a test (next instruction must be a jump)
-	setAFlag byte   // instruction set register A
-	argBMode byte   // B arg mode
-	argCMode byte   // C arg mode
-	opMode   byte   // op mopde
-	name     string //
+	testFlag byte // operator is a test (next instruction must be a jump)
+	setAFlag byte // instruction set register A
+	argBMode byte // B arg mode
+	argCMode byte // C arg mode
+	opMode   byte // op mopde
+	name     string
+	action   func(i Instruction, vm api.LuaVM)
 }
 
 var opcodes = []opcode{
 	/* T A B C mode name */
-	opcode{0, 1, OpArgR, OpArgN, IABC, "MOVE 	"},
-	opcode{0, 1, OpArgK, OpArgN, IABx, "LOADK 	"},
-	opcode{0, 1, OpArgN, OpArgN, IABx, "LOADKX 	"},
-	opcode{0, 1, OpArgU, OpArgU, IABC, "LOADBOOL"},
-	opcode{0, 1, OpArgU, OpArgN, IABC, "LOADNIL "},
-	opcode{0, 1, OpArgU, OpArgN, IABC, "GETUPVAL"},
-	opcode{0, 1, OpArgU, OpArgK, IABC, "GETTABUP"},
-	opcode{0, 1, OpArgR, OpArgK, IABC, "GETTABLE"},
-	opcode{0, 0, OpArgK, OpArgK, IABC, "SETTABUP"},
-	opcode{0, 0, OpArgU, OpArgN, IABC, "SETUPVAL"},
-	opcode{0, 0, OpArgK, OpArgK, IABC, "SETTABLE"},
-	opcode{0, 1, OpArgU, OpArgU, IABC, "NEWTABLE"},
-	opcode{0, 1, OpArgR, OpArgK, IABC, "SELF 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "ADD 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "SUB 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "MUL 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "MOD 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "POW 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "DIV 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "IDIV 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "BAND 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "BOR 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "BXOR 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "SHL 	"},
-	opcode{0, 1, OpArgK, OpArgK, IABC, "SHR 	"},
-	opcode{0, 1, OpArgR, OpArgN, IABC, "UNM 	"},
-	opcode{0, 1, OpArgR, OpArgN, IABC, "BNOT 	"},
-	opcode{0, 1, OpArgR, OpArgN, IABC, "NOT 	"},
-	opcode{0, 1, OpArgR, OpArgN, IABC, "LEN 	"},
-	opcode{0, 1, OpArgR, OpArgR, IABC, "CONCAT  "},
-	opcode{0, 0, OpArgR, OpArgN, IAsBx, "JMP 	 "},
-	opcode{1, 0, OpArgK, OpArgK, IABC, "EQ 		"},
-	opcode{1, 0, OpArgK, OpArgK, IABC, "LT 		"},
-	opcode{1, 0, OpArgK, OpArgK, IABC, "LE 		"},
-	opcode{1, 0, OpArgN, OpArgU, IABC, "TEST 	"},
-	opcode{1, 1, OpArgR, OpArgU, IABC, "TESTSET "},
-	opcode{0, 1, OpArgU, OpArgU, IABC, "CALL 	"},
-	opcode{0, 1, OpArgU, OpArgU, IABC, "TAILCALL"},
-	opcode{0, 0, OpArgU, OpArgN, IABC, "RETURN  "},
-	opcode{0, 1, OpArgR, OpArgN, IAsBx, "FORLOOP "},
-	opcode{0, 1, OpArgR, OpArgN, IAsBx, "FORPREP "},
-	opcode{0, 0, OpArgN, OpArgU, IABC, "TFORCALL"},
-	opcode{0, 1, OpArgR, OpArgN, IAsBx, "TFORLOOP"},
-	opcode{0, 0, OpArgU, OpArgU, IABC, "SETLIST "},
-	opcode{0, 1, OpArgU, OpArgN, IABx, "CLOSURE "},
-	opcode{0, 1, OpArgU, OpArgN, IABC, "VARARG  "},
-	opcode{0, 0, OpArgU, OpArgU, IAx, "EXTRAARG"},
+	opcode{0, 1, OpArgR, OpArgN, IABC, "MOVE    ", move},
+	opcode{0, 1, OpArgK, OpArgN, IABx, "LOADK   ", loadK},
+	opcode{0, 1, OpArgN, OpArgN, IABx, "LOADKX  ", loadKx},
+	opcode{0, 1, OpArgU, OpArgU, IABC, "LOADBOOL", loadBool},
+	opcode{0, 1, OpArgU, OpArgN, IABC, "LOADNIL ", loadNil},
+	opcode{0, 1, OpArgU, OpArgN, IABC, "GETUPVAL", nil},
+	opcode{0, 1, OpArgU, OpArgK, IABC, "GETTABUP", nil},
+	opcode{0, 1, OpArgR, OpArgK, IABC, "GETTABLE", nil},
+	opcode{0, 0, OpArgK, OpArgK, IABC, "SETTABUP", nil},
+	opcode{0, 0, OpArgU, OpArgN, IABC, "SETUPVAL", nil},
+	opcode{0, 0, OpArgK, OpArgK, IABC, "SETTABLE", nil},
+	opcode{0, 1, OpArgU, OpArgU, IABC, "NEWTABLE", nil},
+	opcode{0, 1, OpArgR, OpArgK, IABC, "SELF    ", nil},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "ADD     ", add},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "SUB     ", sub},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "MUL     ", mul},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "MOD     ", mod},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "POW     ", pow},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "DIV     ", div},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "IDIV    ", idiv},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "BAND    ", band},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "BOR     ", bor},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "BXOR    ", bxor},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "SHL     ", shl},
+	opcode{0, 1, OpArgK, OpArgK, IABC, "SHR     ", shr},
+	opcode{0, 1, OpArgR, OpArgN, IABC, "UNM     ", unm},
+	opcode{0, 1, OpArgR, OpArgN, IABC, "BNOT    ", bnot},
+	opcode{0, 1, OpArgR, OpArgN, IABC, "NOT     ", not},
+	opcode{0, 1, OpArgR, OpArgN, IABC, "LEN     ", _len},
+	opcode{0, 1, OpArgR, OpArgR, IABC, "CONCAT  ", concat},
+	opcode{0, 0, OpArgR, OpArgN, IAsBx, "JMP     ", jmp},
+	opcode{1, 0, OpArgK, OpArgK, IABC, "EQ      ", eq},
+	opcode{1, 0, OpArgK, OpArgK, IABC, "LT      ", lt},
+	opcode{1, 0, OpArgK, OpArgK, IABC, "LE      ", le},
+	opcode{1, 0, OpArgN, OpArgU, IABC, "TEST    ", test},
+	opcode{1, 1, OpArgR, OpArgU, IABC, "TESTSET ", testSet},
+	opcode{0, 1, OpArgU, OpArgU, IABC, "CALL    ", nil},
+	opcode{0, 1, OpArgU, OpArgU, IABC, "TAILCALL", nil},
+	opcode{0, 0, OpArgU, OpArgN, IABC, "RETURN  ", nil},
+	opcode{0, 1, OpArgR, OpArgN, IAsBx, "FORLOOP ", forLoop},
+	opcode{0, 1, OpArgR, OpArgN, IAsBx, "FORPREP ", forPrep},
+	opcode{0, 0, OpArgN, OpArgU, IABC, "TFORCALL", nil},
+	opcode{0, 1, OpArgR, OpArgN, IAsBx, "TFORLOOP", nil},
+	opcode{0, 0, OpArgU, OpArgU, IABC, "SETLIST ", nil},
+	opcode{0, 1, OpArgU, OpArgN, IABx, "CLOSURE ", nil},
+	opcode{0, 1, OpArgU, OpArgN, IABC, "VARARG  ", nil},
+	opcode{0, 0, OpArgU, OpArgU, IAx, "EXTRAARG", nil},
 }
