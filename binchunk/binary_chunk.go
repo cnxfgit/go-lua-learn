@@ -60,7 +60,7 @@ type Prototype struct {
 }
 
 type Upvalue struct {
-	Instack byte
+	Instack byte	// 1-当前函数的局部变量 0-已经被当前函数捕获
 	Idx     byte
 }
 
