@@ -1,5 +1,7 @@
 package state
 
+import "luago/api"
+
 func (ls *luaState) PushNil() {
 	ls.stack.push(nil)
 }
@@ -19,3 +21,14 @@ func (ls *luaState) PushNumber(n float64) {
 func (ls *luaState) PushString(s string) {
 	ls.stack.push(s)
 }
+
+func (ls *luaState) PushGoFunction(f api.GoFunction) {
+	ls.stack.push(newGoClosure(f))
+}
+
+func (ls *luaState) PushGlobalTable() {
+	global := ls.registry.get(api.LUA_RIDX_GLOBALS)
+	ls.stack.push(global)
+}
+
+

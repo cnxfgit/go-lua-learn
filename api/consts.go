@@ -35,3 +35,8 @@ const (
 	LUA_OPLT        // <
 	LUA_OPLE        // <=
 )
+
+const LUA_MINSTACK = 20                         // 预留的栈空间
+const LUAI_MAXSTACK = 100_0000                  // 最大栈数量
+const LUA_REGISTRYINDEX = -LUAI_MAXSTACK - 1000 // 注册表的索引
+const LUA_RIDX_GLOBALS int64 = 2                // 全局变量的索引

@@ -1,5 +1,7 @@
 package state
 
+import "luago/api"
+
 type luaStack struct {
 	slots   []luaValue // 值
 	top     int        // 栈顶索引
@@ -7,12 +9,14 @@ type luaStack struct {
 	closure *closure
 	varargs []luaValue
 	pc      int
+	state   *luaState
 }
 
-func newLuaStack(size int) *luaStack {
+func newLuaStack(size int, state *luaState) *luaStack {
 	return &luaStack{
 		slots: make([]luaValue, size),
 		top:   0,
+		state: state,
 	}
 }
 
@@ -43,6 +47,10 @@ func (ls *luaStack) pop() luaValue {
 
 // 转换成绝对索引 未考虑索引是否有效
 func (ls *luaStack) absIndex(idx int) int {
+	if idx <= api.LUA_REGISTRYINDEX {
+		// 直接使用伪索引
+		return idx
+	}
 	if idx >= 0 {
 		return idx
 	}
@@ -50,11 +58,17 @@ func (ls *luaStack) absIndex(idx int) int {
 }
 
 func (ls *luaStack) isValid(idx int) bool {
+	if idx == api.LUA_REGISTRYINDEX {
+		return true
+	}
 	absIdx := ls.absIndex(idx)
 	return absIdx > 0 && absIdx <= ls.top
 }
 
 func (ls *luaStack) get(idx int) luaValue {
+	if idx == api.LUA_REGISTRYINDEX {
+		return ls.state.registry
+	}
 	absIdx := ls.absIndex(idx)
 	if absIdx > 0 && absIdx <= ls.top {
 		return ls.slots[absIdx-1]
@@ -63,6 +77,10 @@ func (ls *luaStack) get(idx int) luaValue {
 }
 
 func (ls *luaStack) set(idx int, val luaValue) {
+	if idx  == api.LUA_REGISTRYINDEX {
+		ls.state.registry = val.(*luaTable)
+		return
+	}
 	absIdx := ls.absIndex(idx)
 	if absIdx > 0 && absIdx <= ls.top {
 		ls.slots[absIdx-1] = val

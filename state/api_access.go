@@ -120,3 +120,19 @@ func (ls *luaState) ToStringX(idx int) (string, bool) {
 		return "", false
 	}
 }
+
+func (ls *luaState) IsGoFunction(idx int) bool {
+	val := ls.stack.get(idx)
+	if c, ok := val.(*closure); ok {
+		return c.goFunc != nil
+	}
+	return false
+}
+
+func (ls *luaState) ToGoFunction(idx int) api.GoFunction {
+	val := ls.stack.get(idx)
+	if c, ok := val.(*closure); ok {
+		return c.goFunc
+	}
+	return nil
+}
