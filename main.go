@@ -4,28 +4,70 @@ import (
 	"fmt"
 	"luago/api"
 	"luago/binchunk"
+	"luago/compiler/lexer"
 	"luago/state"
 	"luago/vm"
 	"os"
 )
 
 func main() {
+	// if len(os.Args) > 1 {
+	// 	data, err := os.ReadFile(os.Args[1])
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	ls := state.New()
+	// 	ls.Register("print", print)
+	// 	ls.Register("getmetatable", getMetatable)
+	// 	ls.Register("setmetatable", setMetatable)
+	// 	ls.Register("next", next)
+	// 	ls.Register("pairs", pairs)
+	// 	ls.Register("ipairs", iPairs)
+	// 	ls.Register("error", error)
+	// 	ls.Register("pcall", pCall)
+	// 	ls.Load(data, "chunk", "b")
+	// 	ls.Call(0, 0)
+	// }
+
 	if len(os.Args) > 1 {
 		data, err := os.ReadFile(os.Args[1])
 		if err != nil {
 			panic(err)
 		}
-		ls := state.New()
-		ls.Register("print", print)
-		ls.Register("getmetatable", getMetatable)
-		ls.Register("setmetatable", setMetatable)
-		ls.Register("next", next)
-		ls.Register("pairs", pairs)
-		ls.Register("ipairs", iPairs)
-		ls.Register("error", error)
-		ls.Register("pcall", pCall)
-		ls.Load(data, "chunk", "b")
-		ls.Call(0, 0)
+
+		testLexer(string(data), os.Args[1])
+	}
+}
+
+func testLexer(chunk, chunkName string) {
+	l := lexer.NewLexer(chunk, chunkName)
+	for {
+		line, kind, token := l.NextToken()
+		fmt.Printf("[%2d] [%-10s] %s\n", line, kindToCategory(kind), token)
+		if kind == lexer.TOKEN_EOF {
+			break
+		}
+	}
+}
+
+func kindToCategory(kind int) string {
+	switch {
+	case kind < lexer.TOKEN_SEP_SEMI:
+		return "other"
+	case kind <= lexer.TOKEN_SEP_RCURLY:
+		return "separator"
+	case kind <= lexer.TOKEN_OP_NOT:
+		return "operator"
+	case kind <= lexer.TOKEN_KW_WHILE:
+		return "keyword"
+	case kind == lexer.TOKEN_IDENTIFIER:
+		return "identifier"
+	case kind == lexer.TOKEN_NUMBER:
+		return "number"
+	case kind == lexer.TOKEN_STRING:
+		return "string"
+	default:
+		return "other"
 	}
 }
 
