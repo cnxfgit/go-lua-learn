@@ -14,7 +14,7 @@ func (ls *luaState) Load(chunk []byte, chunkName string, mode string) int {
 		env := ls.registry.get(api.LUA_RIDX_GLOBALS)
 		c.upvals[0] = &upvalue{&env}
 	}
-	return 0
+	return api.LUA_OK
 }
 
 func (ls *luaState) Call(nArgs, nResults int) {
@@ -95,4 +95,22 @@ func (ls *luaState) runLuaClosure() {
 			break
 		}
 	}
+}
+
+func (ls *luaState) PCall(nArgs, nResults, msgh int) (status int) {
+	caller := ls.stack
+	status = api.LUA_ERRRUN
+
+	defer func ()  {
+		if err := recover(); err != nil {
+			for ls.stack != caller {
+				ls.popLuaStack()
+			}
+			ls.stack.push(err)
+		}
+	}()
+
+	ls.Call(nArgs, nResults)
+	status = api.LUA_OK
+	return
 }
