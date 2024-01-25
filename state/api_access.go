@@ -5,6 +5,19 @@ import (
 	"luago/api"
 )
 
+
+func (ls *luaState) RawLen(idx int) uint {
+	val := ls.stack.get(idx)
+	switch x := val.(type) {
+	case string:
+		return uint(len(x))
+	case *luaTable:
+		return uint(x.len())
+	default:
+		return 0
+	}
+}
+
 func (ls *luaState) TypeName(tp api.LuaType) string {
 	switch tp {
 	case api.LUA_TNONE:
@@ -136,3 +149,4 @@ func (ls *luaState) ToGoFunction(idx int) api.GoFunction {
 	}
 	return nil
 }
+

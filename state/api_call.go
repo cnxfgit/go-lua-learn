@@ -19,7 +19,19 @@ func (ls *luaState) Load(chunk []byte, chunkName string, mode string) int {
 
 func (ls *luaState) Call(nArgs, nResults int) {
 	val := ls.stack.get(-(nArgs + 1))
-	if c, ok := val.(*closure); ok {
+	
+	c, ok := val.(*closure)
+	if !ok {
+		if mf := getMetafield(val, "__call", ls); mf != nil {
+			if c, ok = mf.(*closure); ok {
+				ls.stack.push(val)
+				ls.Insert(-(nArgs + 2))
+				nArgs += 1
+			}
+		}
+	}
+
+	if ok {
 		if c.proto != nil {
 			ls.callLuaClosure(nArgs, nResults, c)
 		} else {
@@ -35,7 +47,7 @@ func (ls *luaState) callLuaClosure(nArgs, nResults int, c *closure) {
 	nParams := int(c.proto.NumParams)
 	isVararg := c.proto.IsVararg == 1
 
-	newStack := newLuaStack(nRegs + api.LUA_MINSTACK, ls)
+	newStack := newLuaStack(nRegs+api.LUA_MINSTACK, ls)
 	newStack.closure = c
 
 	funcAndArgs := ls.stack.popN(nArgs + 1)
@@ -57,7 +69,7 @@ func (ls *luaState) callLuaClosure(nArgs, nResults int, c *closure) {
 }
 
 func (ls *luaState) callGoClosure(nArgs, nResults int, c *closure) {
-	newStack := newLuaStack(nArgs + api.LUA_MINSTACK, ls)
+	newStack := newLuaStack(nArgs+api.LUA_MINSTACK, ls)
 	newStack.closure = c
 
 	args := ls.stack.popN(nArgs)
