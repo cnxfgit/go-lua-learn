@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"luago/api"
 	"luago/binchunk"
 	"luago/compiler/lexer"
+	"luago/compiler/parser"
 	"luago/state"
 	"luago/vm"
 	"os"
@@ -36,7 +38,17 @@ func main() {
 		}
 
 		testLexer(string(data), os.Args[1])
+		testParser(string(data), os.Args[1])
 	}
+}
+
+func testParser(chunk, chunkName string) {
+	ast := parser.Parse(chunk, chunkName)
+	b, err := json.Marshal(ast)
+	if err != nil {
+		panic(err)
+	}
+	println(string(b))
 }
 
 func testLexer(chunk, chunkName string) {

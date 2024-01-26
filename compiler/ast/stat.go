@@ -34,7 +34,7 @@ type RepeatStat struct {
 
 type IfStat struct {
 	Exps  []Exp
-	Block []*Block
+	Blocks []*Block
 }
 
 type ForNumStat struct {
@@ -61,7 +61,7 @@ type LocalVarDeclStat struct {
 }
 
 type AssignStat struct {
-	LastLint int
+	LastLine int
 	VarList []Exp
 	ExpList []Exp
 }

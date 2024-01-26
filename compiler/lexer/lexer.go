@@ -195,11 +195,12 @@ func (l *Lexer) NextToken() (line, kind int, token string) {
 	if c == '_' || isLatter(c) {
 		token := l.scanIdentifier()
 		if kind, found := keywords[token]; found {
-			return line, kind, token
+			return l.line, kind, token
 		} else {
-			return line, TOKEN_IDENTIFIER, token
+			return l.line, TOKEN_IDENTIFIER, token
 		}
 	}
+
 	l.error("unexpected symbol near %q", c)
 	return
 }
@@ -211,7 +212,7 @@ func (l *Lexer) NextIdentifier() (line int, token string) {
 func (l *Lexer) NextTokenOfKind(kind int) (line int, token string) {
 	line, _kind, token := l.NextToken()
 	if kind != _kind {
-		l.error("syntax error near '%s", token)
+		l.error("syntax error near '%s'", token)
 	}
 	return line, token
 }
@@ -302,7 +303,7 @@ func (l *Lexer) error(f string, a ...interface{}) {
 	panic(err)
 }
 
-func (self *Lexer) escape(str string) string {
+func (l *Lexer) escape(str string) string {
 	var buf bytes.Buffer
 	for len(str) > 0 {
 		if str[0] != '\\' {
@@ -311,7 +312,7 @@ func (self *Lexer) escape(str string) string {
 			continue
 		}
 		if len(str) == 1 {
-			self.error("unfinished string")
+			l.error("unfinished string")
 		}
 		switch str[1] {
 		case 'a':
@@ -366,7 +367,7 @@ func (self *Lexer) escape(str string) string {
 					str = str[len(found):]
 					continue
 				}
-				self.error("decimal escape too large near '%s'", found)
+				l.error("decimal escape too large near '%s'", found)
 			}
 
 		case 'x': // \xXX
@@ -385,7 +386,7 @@ func (self *Lexer) escape(str string) string {
 					str = str[len(found):]
 					continue
 				}
-				self.error("UTF-8 value too large near '%s'", found)
+				l.error("UTF-8 value too large near '%s'", found)
 			}
 		case 'z':
 			str = str[2:]
@@ -395,7 +396,7 @@ func (self *Lexer) escape(str string) string {
 			continue
 
 		}
-		self.error("invalid escape sequence near '\\%c'", str[1])
+		l.error("invalid escape sequence near '\\%c'", str[1])
 	}
 	return buf.String()
 }

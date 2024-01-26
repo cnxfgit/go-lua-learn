@@ -10,7 +10,7 @@ type TrueExp struct {
 	Line int
 }
 
-type False struct {
+type FalseExp struct {
 	Line int
 }
 
@@ -39,7 +39,7 @@ type NameExp struct {
 }
 
 type UnopExp struct {
-	Lint int
+	Line int
 	Op   int
 	Exp  Exp
 }
@@ -52,12 +52,12 @@ type BinopExp struct {
 }
 
 type ConcatExp struct {
-	Lint int
+	Line int
 	Exps []Exp
 }
 
 type TableConstructorExp struct {
-	Lint     int
+	Line     int
 	LastLine int
 	KeyExps  []Exp
 	ValExps  []Exp
@@ -65,7 +65,7 @@ type TableConstructorExp struct {
 
 type FuncDefExp struct {
 	Line     int
-	LastLint int
+	LastLine int
 	ParList  []string
 	IsVararg bool
 	Block    *Block
@@ -82,7 +82,7 @@ type TableAccessExp struct {
 }
 
 type FuncCallExp struct {
-	Lint      int
+	Line      int
 	LastLine  int
 	PrefixExp Exp
 	NameExp   *StringExp
