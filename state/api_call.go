@@ -79,8 +79,10 @@ func (ls *luaState) callGoClosure(nArgs, nResults int, c *closure) {
 	newStack := newLuaStack(nArgs+api.LUA_MINSTACK, ls)
 	newStack.closure = c
 
-	args := ls.stack.popN(nArgs)
-	newStack.pushN(args, nArgs)
+	if nArgs > 0 {
+		args := ls.stack.popN(nArgs)
+		newStack.pushN(args, nArgs)
+	}
 	ls.stack.pop()
 
 	ls.pushLuaStack(newStack)

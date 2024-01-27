@@ -1,6 +1,9 @@
 package state
 
-import "luago/api"
+import (
+	"fmt"
+	"luago/api"
+)
 
 func (ls *luaState) PushNil() {
 	ls.stack.push(nil)
@@ -38,4 +41,9 @@ func (ls *luaState) PushGoClosure(f api.GoFunction, n int) {
 		closure.upvals[n-1] = &upvalue{&val}
 	}
 	ls.stack.push(closure)
+}
+
+func (ls *luaState) PushFString(fmtStr string, a ...interface{}) {
+	str := fmt.Sprintf(fmtStr, a...)
+	ls.stack.push(str)
 }

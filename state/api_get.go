@@ -45,8 +45,8 @@ func (ls *luaState) getTable(t, k luaValue, raw bool) api.LuaType {
 }
 
 func (ls *luaState) GetField(idx int, k string) api.LuaType {
-	ls.PushString(k)
-	return ls.GetTable(idx)
+	t := ls.stack.get(idx)
+	return ls.getTable(t, k, false)
 }
 
 func (ls *luaState) GetI(idx int, i int64) api.LuaType {

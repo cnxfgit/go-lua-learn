@@ -6,6 +6,11 @@ type CompareOp = int
 type GoFunction func(LuaState) int
 
 type LuaState interface {
+	BasicAPI
+	AuxLib
+}
+
+type BasicAPI interface {
 	// basic stack manipulation
 	GetTop() int
 	AbsIndex(idx int) int
@@ -28,6 +33,7 @@ type LuaState interface {
 	IsInteger(idx int) bool
 	IsNumber(idx int) bool
 	IsString(idx int) bool
+	IsGoFunction(idx int) bool
 	ToBoolean(idx int) bool
 	ToInteger(idx int) int64
 	ToIntegerX(idx int) (int64, bool)
@@ -35,12 +41,16 @@ type LuaState interface {
 	ToNumberX(idx int) (float64, bool)
 	ToString(idx int) string
 	ToStringX(idx int) (string, bool)
+	ToGoFunction(idx int) GoFunction
+	ToPointer(idx int) interface{}
 	// push functions (Go -> stack)
 	PushNil()
 	PushBoolean(b bool)
 	PushInteger(n int64)
 	PushNumber(n float64)
 	PushString(s string)
+	PushFString(fmt string, a ...interface{})
+	PushGoFunction(f GoFunction)
 
 	Arith(op ArithOp)
 	Compare(idx1, idx2 int, op CompareOp) bool
@@ -65,10 +75,6 @@ type LuaState interface {
 	LoadVararg(n int)
 	LoadProto(idx int)
 
-	PushGoFunction(f GoFunction)
-	IsGoFunction(idx int) bool
-	ToGoFunction(idx int) GoFunction
-
 	PushGlobalTable()
 	GetGlobal(name string) LuaType
 	SetGlobal(name string)
@@ -86,6 +92,7 @@ type LuaState interface {
 	Next(idx int) bool
 	Error() int
 	PCall(nArgs, nResults, msgh int) int
+	StringToNumber(s string) bool
 }
 
 func LuaUpvalueIndex(i int) int {
