@@ -140,7 +140,7 @@ func _finishForNumStat(l *lexer.Lexer, lineOfFor int, varName string) *ast.ForNu
 		LineOfDo:  lineOfDo,
 		VarName:   varName,
 		InitExp:   initExp,
-		Limit:     limitExp,
+		LimitExp:  limitExp,
 		StepExp:   stepExp,
 		Block:     block,
 	}

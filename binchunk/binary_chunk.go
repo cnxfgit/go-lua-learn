@@ -60,7 +60,7 @@ type Prototype struct {
 }
 
 type Upvalue struct {
-	Instack byte	// 1-当前函数的局部变量 0-已经被当前函数捕获
+	Instack byte // 1-当前函数的局部变量 0-已经被当前函数捕获
 	Idx     byte
 }
 
@@ -75,4 +75,8 @@ func Undump(data []byte) *Prototype {
 	reader.checkHeader()        // 校验头部
 	reader.readByte()           // 跳过upvalue数量
 	return reader.readProto("") // 读取函数原型
+}
+
+func IsBinaryChunk(data []byte) bool {
+	return len(data) > 4 && string(data[:4]) == LUA_SIGNATURE
 }

@@ -33,7 +33,7 @@ type RepeatStat struct {
 }
 
 type IfStat struct {
-	Exps  []Exp
+	Exps   []Exp
 	Blocks []*Block
 }
 
@@ -42,7 +42,7 @@ type ForNumStat struct {
 	LineOfDo  int
 	VarName   string
 	InitExp   Exp
-	Limit     Exp
+	LimitExp  Exp
 	StepExp   Exp
 	Block     *Block
 }
@@ -62,13 +62,11 @@ type LocalVarDeclStat struct {
 
 type AssignStat struct {
 	LastLine int
-	VarList []Exp
-	ExpList []Exp
+	VarList  []Exp
+	ExpList  []Exp
 }
 
 type LocalFuncDefStat struct {
 	Name string
-	Exp *FuncDefExp
+	Exp  *FuncDefExp
 }
-
-

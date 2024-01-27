@@ -3,11 +3,18 @@ package state
 import (
 	"luago/api"
 	"luago/binchunk"
+	"luago/compiler"
 	"luago/vm"
 )
 
 func (ls *luaState) Load(chunk []byte, chunkName string, mode string) int {
-	proto := binchunk.Undump(chunk)
+	var proto *binchunk.Prototype
+	if binchunk.IsBinaryChunk(chunk) {
+		proto = binchunk.Undump(chunk)
+	} else {
+		proto = compiler.Compile(string(chunk), chunkName)
+	}
+
 	c := newLuaClosure(proto)
 	ls.stack.push(c)
 	if len(proto.Upvalues) > 0 {
@@ -19,7 +26,7 @@ func (ls *luaState) Load(chunk []byte, chunkName string, mode string) int {
 
 func (ls *luaState) Call(nArgs, nResults int) {
 	val := ls.stack.get(-(nArgs + 1))
-	
+
 	c, ok := val.(*closure)
 	if !ok {
 		if mf := getMetafield(val, "__call", ls); mf != nil {
@@ -101,7 +108,7 @@ func (ls *luaState) PCall(nArgs, nResults, msgh int) (status int) {
 	caller := ls.stack
 	status = api.LUA_ERRRUN
 
-	defer func ()  {
+	defer func() {
 		if err := recover(); err != nil {
 			for ls.stack != caller {
 				ls.popLuaStack()

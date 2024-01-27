@@ -13,33 +13,35 @@ import (
 )
 
 func main() {
-	// if len(os.Args) > 1 {
-	// 	data, err := os.ReadFile(os.Args[1])
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	ls := state.New()
-	// 	ls.Register("print", print)
-	// 	ls.Register("getmetatable", getMetatable)
-	// 	ls.Register("setmetatable", setMetatable)
-	// 	ls.Register("next", next)
-	// 	ls.Register("pairs", pairs)
-	// 	ls.Register("ipairs", iPairs)
-	// 	ls.Register("error", error)
-	// 	ls.Register("pcall", pCall)
-	// 	ls.Load(data, "chunk", "b")
-	// 	ls.Call(0, 0)
-	// }
-
 	if len(os.Args) > 1 {
 		data, err := os.ReadFile(os.Args[1])
 		if err != nil {
 			panic(err)
 		}
-
-		testLexer(string(data), os.Args[1])
-		testParser(string(data), os.Args[1])
+		
+		ls := state.New()
+		ls.Register("print", print)
+		ls.Register("getmetatable", getMetatable)
+		ls.Register("setmetatable", setMetatable)
+		ls.Register("next", next)
+		ls.Register("pairs", pairs)
+		ls.Register("ipairs", iPairs)
+		ls.Register("error", error)
+		ls.Register("pcall", pCall)
+		ls.Load(data, os.Args[1], "b")
+		ls.Call(0, 0)
 	}
+
+	// if len(os.Args) > 1 {
+	// 	data, err := os.ReadFile(os.Args[1])
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+
+	// 	testLexer(string(data), os.Args[1])
+	// 	testParser(string(data), os.Args[1])
+		
+	// }
 }
 
 func testParser(chunk, chunkName string) {
