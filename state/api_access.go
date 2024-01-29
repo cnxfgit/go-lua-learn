@@ -73,6 +73,10 @@ func (ls *luaState) IsNumber(idx int) bool {
 	return ok
 }
 
+func (ls *luaState) IsFunction(idx int) bool {
+	return ls.Type(idx) == api.LUA_TFUNCTION
+}
+
 func (ls *luaState) IsInteger(idx int) bool {
 	val := ls.stack.get(idx)
 	_, ok := val.(int64)

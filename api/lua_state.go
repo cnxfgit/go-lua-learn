@@ -33,6 +33,7 @@ type BasicAPI interface {
 	IsInteger(idx int) bool
 	IsNumber(idx int) bool
 	IsString(idx int) bool
+	IsFunction(idx int) bool
 	IsGoFunction(idx int) bool
 	ToBoolean(idx int) bool
 	ToInteger(idx int) int64

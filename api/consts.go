@@ -31,6 +31,11 @@ const (
 )
 
 const (
+	LUA_MAXINTEGER = 1<<63 - 1
+	LUA_MININTEGER = -1 << 63
+)
+
+const (
 	LUA_OPEQ = iota // ==
 	LUA_OPLT        // <
 	LUA_OPLE        // <=
