@@ -182,8 +182,9 @@ func cgNameExp(fi *funcInfo, node *ast.NameExp, a int) {
 		fi.emitGetUpval(node.Line, a, idx)
 	} else { // x => _ENV['x']
 		taExp := &ast.TableAccessExp{
-			PrefixExp: &ast.NameExp{Line: 0, Name: "_ENV"},
-			KeyExp:    &ast.StringExp{Line: 0, Str: node.Name},
+			LastLine: node.Line,
+			PrefixExp: &ast.NameExp{Line: node.Line, Name: "_ENV"},
+			KeyExp:    &ast.StringExp{Line: node.Line, Str: node.Name},
 		}
 		cgTableAccessExp(fi, taExp, a)
 	}
@@ -210,10 +211,16 @@ func cgFuncCallExp(fi *funcInfo, node *ast.FuncCallExp, a, n int) {
 func prepFuncCall(fi *funcInfo, node *ast.FuncCallExp, a int) int {
 	nArgs := len(node.Args)
 	lastArgIsVarargOrFuncCall := false
+
+
 	cgExp(fi, node.PrefixExp, a, 1)
 	if node.NameExp != nil {
-		c := 0x100 + fi.indexOfConstant(node.NameExp.Str)
+		fi.allocReg()
+		c, k := expToOpArg(fi, node.NameExp, ARG_RK)
 		fi.emitSelf(node.Line, a, a, c)
+		if k == ARG_REG {
+			fi.freeRegs(1)
+		}
 	}
 	for i, arg := range node.Args {
 		tmp := fi.allocReg()

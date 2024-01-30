@@ -44,14 +44,17 @@ func newFuncInfo(parent *funcInfo, fd *ast.FuncDefExp) *funcInfo {
 	return &funcInfo{
 		parent:    parent,
 		subFuncs:  []*funcInfo{},
-		constants: map[interface{}]int{},
-		upvalues:  map[string]upvalInfo{},
-		locNames:  map[string]*locVarInfo{},
 		locVars:   make([]*locVarInfo, 0, 8),
+		locNames:  map[string]*locVarInfo{},
+		upvalues:  map[string]upvalInfo{},
+		constants: map[interface{}]int{},
 		breaks:    make([][]int, 1),
 		insts:     make([]uint32, 0, 8),
-		isVararg:  fd.IsVararg,
+		lineNums:  make([]uint32, 0, 8),
+		line:      fd.Line,
+		lastLine:  fd.LastLine,
 		numParams: len(fd.ParList),
+		isVararg:  fd.IsVararg,
 	}
 }
 
@@ -91,6 +94,9 @@ func (fi *funcInfo) freeReg() {
 }
 
 func (fi *funcInfo) freeRegs(n int) {
+	if n < 0 {
+		panic("n < 0 !")
+	}
 	for i := 0; i < n; i++ {
 		fi.freeReg()
 	}

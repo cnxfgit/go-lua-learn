@@ -52,6 +52,7 @@ type BasicAPI interface {
 	PushString(s string)
 	PushFString(fmt string, a ...interface{})
 	PushGoFunction(f GoFunction)
+	PushGoClosure(f GoFunction, n int)
 
 	Arith(op ArithOp)
 	Compare(idx1, idx2 int, op CompareOp) bool
