@@ -151,7 +151,7 @@ func _finishForInStat(l *lexer.Lexer, name0 string) *ast.ForInStat {
 
 	l.NextTokenOfKind(lexer.TOKEN_KW_IN)
 	expList := parseExpList(l)
-	lineOfDo, _ := l.NextTokenOfKind(lexer.TOKEN_KW_END)
+	lineOfDo, _ := l.NextTokenOfKind(lexer.TOKEN_KW_DO)
 	block := parseBlock(l)
 	l.NextTokenOfKind(lexer.TOKEN_KW_END)
 	return &ast.ForInStat{

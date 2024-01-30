@@ -158,3 +158,13 @@ func (ls *luaState) ToPointer(idx int) interface{} {
 	// todo
 	return ls.stack.get(idx)
 }
+
+func (ls *luaState)ToThread(idx int) api.LuaState {
+	val := ls.stack.get(idx)
+	if val != nil {
+		if lState, ok := val.(*luaState); ok {
+			return lState
+		}
+	}
+	return nil
+}

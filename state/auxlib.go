@@ -140,6 +140,7 @@ func (ls *luaState) OpenLibs() {
 		"utf8": stdlib.OpenUTF8Lib,
 		"os": stdlib.OpenOSLib,
 		"package": stdlib.OpenPackageLib,
+		"coroutine": stdlib.OpenCoroutineLib,
 	}
 
 	for name, fun := range libs {

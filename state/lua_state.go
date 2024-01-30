@@ -5,14 +5,23 @@ import "luago/api"
 type luaState struct {
 	registry *luaTable // 注册表
 	stack    *luaStack
+	coStatus int
+	coCaller *luaState
+	coChan   chan int
 }
 
 func New() *luaState {
-	registry := newLuaTable(0, 0)
-	registry.put(api.LUA_RIDX_GLOBALS, newLuaTable(0, 0)) // 全局表
-	ls := &luaState{registry: registry}
+	ls := &luaState{}
+	registry := newLuaTable(8, 0)
+	registry.put(api.LUA_RIDX_MAINTHREAD, ls)
+	registry.put(api.LUA_RIDX_GLOBALS, newLuaTable(0, 20))
+	ls.registry = registry
 	ls.pushLuaStack(newLuaStack(api.LUA_MINSTACK, ls))
 	return ls
+}
+
+func (ls *luaState) isMainThread() bool {
+	return ls.registry.get(api.LUA_RIDX_MAINTHREAD) == ls
 }
 
 func (ls *luaState) pushLuaStack(stack *luaStack) {

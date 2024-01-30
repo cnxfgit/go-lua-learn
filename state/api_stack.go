@@ -1,5 +1,7 @@
 package state
 
+import "luago/api"
+
 func (ls *luaState) GetTop() int {
 	return ls.stack.top
 }
@@ -14,7 +16,7 @@ func (ls *luaState) CheckStack(n int) bool {
 }
 
 func (ls *luaState) Pop(n int) {
-	ls.SetTop(-n-1)
+	ls.SetTop(-n - 1)
 }
 
 func (ls *luaState) Copy(fromIdx, toIdx int) {
@@ -71,4 +73,9 @@ func (ls *luaState) SetTop(idx int) {
 			ls.stack.push(nil)
 		}
 	}
+}
+
+func (ls *luaState) XMove(to api.LuaState, n int) {
+	vals := ls.stack.popN(n)
+	to.(*luaState).stack.pushN(vals, n)
 }

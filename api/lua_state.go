@@ -95,6 +95,16 @@ type BasicAPI interface {
 	Error() int
 	PCall(nArgs, nResults, msgh int) int
 	StringToNumber(s string) bool
+
+	NewThread() LuaState
+	Resume(from LuaState, nArgs int) int
+	Yield(nResult int) int
+	Status() int
+	IsYieldable() bool
+	ToThread(idx int) LuaState
+	PushThread() bool
+	XMove(to LuaState, n int)
+	GetStack() bool
 }
 
 func LuaUpvalueIndex(i int) int {
