@@ -61,7 +61,6 @@ func parseExp10(l *lexer.Lexer) ast.Exp {
 			return exp
 		}
 	}
-	return exp
 }
 
 func parseExp9(l *lexer.Lexer) ast.Exp {
@@ -126,7 +125,6 @@ func parseExp6(l *lexer.Lexer) ast.Exp {
 			return exp
 		}
 	}
-	return exp
 }
 
 func parseExp5(l *lexer.Lexer) ast.Exp {
@@ -161,7 +159,6 @@ func parseExp4(l *lexer.Lexer) ast.Exp {
 			return exp
 		}
 	}
-	return exp
 }
 
 func parseExp3(l *lexer.Lexer) ast.Exp {
@@ -181,7 +178,6 @@ func parseExp3(l *lexer.Lexer) ast.Exp {
 			return exp
 		}
 	}
-	return exp
 }
 
 func parseExp2(l *lexer.Lexer) ast.Exp {

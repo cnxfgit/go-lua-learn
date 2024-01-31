@@ -40,7 +40,6 @@ func _finishPrefixExp(l *lexer.Lexer, exp ast.Exp) ast.Exp {
 			return exp
 		}
 	}
-	return exp
 }
 
 func parseParensExp(l *lexer.Lexer) ast.Exp {

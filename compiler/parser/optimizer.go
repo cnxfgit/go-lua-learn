@@ -44,16 +44,6 @@ func optimizeBnot(exp *ast.UnopExp) ast.Exp {
 	return exp
 }
 
-func optimizeLogicalOr(exp *ast.BinopExp) ast.Exp {
-	if isTrue(exp.Exp1) {
-		return exp.Exp1 // true or x => true
-	}
-	if isFalse(exp.Exp1) && !isVarargOrFuncCall(exp.Exp2) {
-		return exp.Exp2 // false or x => x
-	}
-	return exp
-}
-
 func optimizeLogicalAnd(exp *ast.BinopExp) ast.Exp {
 	if isFalse(exp.Exp1) {
 		return exp.Exp1 // false and x => false
